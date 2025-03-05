@@ -1,0 +1,33 @@
+version: "3.8"
+services:
+  db:
+    image: mongo:latest
+    container_name: mflix-db
+    ports:
+      - "27018:27017"
+    volumes:
+      - ./data:/data/db
+      - ./movies.json:/docker-entrypoint-initdb.d/movies.json:ro
+    environment:
+      MONGO_INITDB_DATABASE: mflix
+    networks:
+      - ntwrk
+
+  app:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+    ports:
+      - "3000:3000"
+    environment:
+      - MONGO_URI=mongodb://db:27017/mflix
+      - PORT=3000
+    depends_on:
+      - db
+    networks:
+      - ntwrk
+
+networks:
+  ntwrk:
