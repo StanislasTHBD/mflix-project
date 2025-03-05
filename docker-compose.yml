@@ -1,4 +1,3 @@
-version: "3.8"
 services:
   db:
     image: mongo:latest
@@ -7,18 +6,35 @@ services:
       - "27018:27017"
     volumes:
       - ./data:/data/db
-      - ./movies.json:/docker-entrypoint-initdb.d/movies.json:ro
+      - ./import:/data/import
     environment:
       MONGO_INITDB_DATABASE: mflix
     networks:
       - ntwrk
 
+  mongo-express:
+    image: mongo-express:latest
+    container_name: mongo-express
+    ports:
+      - "8081:8081"
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=db
+      - ME_CONFIG_MONGODB_PORT=27017
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=
+      - ME_CONFIG_MONGODB_ENABLE_ADMIN=true
+    depends_on:
+      - db
+    networks:
+      - ntwrk
+
   app:
+    #restart: always #activer uniquement en production
     build:
-      context: ./app
+      context: app
       dockerfile: Dockerfile
     volumes:
-      - .:/app
+      - ./app:/app
     ports:
       - "3000:3000"
     environment:
@@ -28,6 +44,10 @@ services:
       - db
     networks:
       - ntwrk
+    develop:
+      watch:
+        - path: ./app
+          action: rebuild
 
 networks:
   ntwrk:

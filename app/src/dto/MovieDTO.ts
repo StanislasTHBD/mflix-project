@@ -18,7 +18,7 @@ export interface MovieDTO {
     };
   }
   
-  import { IMovie } from "../models/Movie";
+  import { type IMovie } from "../models/Movie";
   export const toMovieDTO = (movie: IMovie): MovieDTO => ({
     id: movie._id.toString(),
     title: movie.title,
